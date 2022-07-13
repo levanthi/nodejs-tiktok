@@ -1,6 +1,12 @@
 const express = require("express");
+const session = require('express-session');
 
-const startServer = require('./app/startServer')
+const passportSetup = require('./passport')
+const passport = require('passport')
+const cors = require('cors')
+
+const authRoute = require('./routers/auth')
+const startServer = require('./app/server')
 const connectToDB = require('./app/connectToDB')
 
 const app = express();
@@ -9,7 +15,17 @@ const app = express();
 startServer(app,3001)
 connectToDB()
 
+app.use(passport.initialize());
+app.use(session({ 
+    resave: false,
+    saveUninitialized: true,
+    secret: 'bla bla bla'
+}))
+app.use(cors({
+    origin:'https://localhost:3000',
+    methods:'GET,POST,PUT,DELETE'
+}))
 
-app.get('/',(req,res)=>{
-    res.send('hello world')
-})
+app.use('/auth',authRoute)
+
+
